@@ -39,10 +39,10 @@ export const authApi = {
       body: JSON.stringify({ email, password }),
     }),
 
-  register: (email: string, password: string, name: string, role: string) =>
+  register: (email: string, password: string, name: string) =>
     fetchApi('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name, role }),
+      body: JSON.stringify({ email, password, name }),
     }),
 
   logout: () =>

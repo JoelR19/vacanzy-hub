@@ -1,19 +1,17 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth, UserRole } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Briefcase, Loader2, Mail, Lock, User, UserCog } from 'lucide-react';
+import { Briefcase, Loader2, Mail, Lock, User } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('CODER');
   const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -34,7 +32,7 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      await register(email, password, name, role);
+      await register(email, password, name);
       toast.success('¡Cuenta creada exitosamente!');
       navigate('/login');
     } catch (error: any) {
@@ -120,26 +118,6 @@ export default function Register() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role">Tipo de cuenta</Label>
-                <div className="relative">
-                  <UserCog className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-                  <Select
-                    value={role}
-                    onValueChange={(value: UserRole) => setRole(value)}
-                    disabled={isLoading}
-                  >
-                    <SelectTrigger className="pl-10">
-                      <SelectValue placeholder="Selecciona tu rol" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="CODER">Desarrollador (Coder)</SelectItem>
-                      <SelectItem value="GESTOR">Gestor de Vacantes</SelectItem>
-                      <SelectItem value="ADMIN">Administrador</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
             </CardContent>
 
             <CardFooter className="flex flex-col gap-4">
