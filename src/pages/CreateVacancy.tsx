@@ -1,28 +1,39 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { vacanciesApi } from '@/lib/api';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { PlusCircle, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MainLayout } from "@/components/layout/MainLayout";
+import { vacanciesApi } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function CreateVacancy() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    company: '',
-    location: '',
-    salary: '',
-    maxApplicants: '',
+    title: "",
+    description: "",
+    company: "",
+    location: "",
+    salaryRange: "",
+    seniority: "",
+    softSkills: "",
+    modality: "remoto",
+    maxApplicants: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -30,10 +41,30 @@ export default function CreateVacancy() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { title, description, company, location, salary, maxApplicants } = formData;
+    const {
+      title,
+      description,
+      company,
+      location,
+      salaryRange,
+      maxApplicants,
+      seniority,
+      softSkills,
+      modality,
+    } = formData;
 
-    if (!title || !description || !company || !location || !salary || !maxApplicants) {
-      toast.error('Por favor completa todos los campos');
+    if (
+      !title ||
+      !description ||
+      !company ||
+      !location ||
+      !salaryRange ||
+      !maxApplicants ||
+      !seniority ||
+      !softSkills ||
+      !modality
+    ) {
+      toast.error("Por favor completa todos los campos");
       return;
     }
 
@@ -45,14 +76,17 @@ export default function CreateVacancy() {
         description,
         company,
         location,
-        salary: Number(salary),
+        seniority,
+        softSkills,
+        modality,
+        salaryRange,
         maxApplicants: Number(maxApplicants),
       });
 
-      toast.success('¡Vacante creada exitosamente!');
-      navigate('/vacancies');
+      toast.success("¡Vacante creada exitosamente!");
+      navigate("/vacancies");
     } catch (error: any) {
-      toast.error(error.message || 'Error al crear la vacante');
+      toast.error(error.message || "Error al crear la vacante");
     } finally {
       setIsLoading(false);
     }
@@ -131,18 +165,58 @@ export default function CreateVacancy() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="salary">Salario mensual (USD)</Label>
+                  <Label htmlFor="seniority">Seniority</Label>
                   <Input
-                    id="salary"
-                    name="salary"
-                    type="number"
-                    placeholder="Ej: 3000"
-                    value={formData.salary}
+                    id="seniority"
+                    name="seniority"
+                    placeholder="Ej: Senior"
+                    value={formData.seniority}
                     onChange={handleChange}
                     disabled={isLoading}
-                    min={0}
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="softSkills">Soft Skills</Label>
+                  <Input
+                    id="softSkills"
+                    name="softSkills"
+                    placeholder="Ej: Liderazgo, Comunicación"
+                    value={formData.softSkills}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="modality">Modalidad</Label>
+                  <select
+                    id="modality"
+                    name="modality"
+                    value={formData.modality}
+                    onChange={handleChange as any}
+                    className="w-full rounded-md border px-3 py-2"
+                    disabled={isLoading}
+                  >
+                    <option value="remoto">Remoto</option>
+                    <option value="hibrido">Híbrido</option>
+                    <option value="presencial">Presencial</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="salaryRange">Rango salarial</Label>
+                <Input
+                  id="salaryRange"
+                  name="salaryRange"
+                  placeholder="Ej: $1.000.000 - $2.000.000"
+                  value={formData.salaryRange}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
               </div>
 
               <div className="space-y-2">
@@ -164,7 +238,7 @@ export default function CreateVacancy() {
                   type="button"
                   variant="outline"
                   className="flex-1"
-                  onClick={() => navigate('/vacancies')}
+                  onClick={() => navigate("/vacancies")}
                   disabled={isLoading}
                 >
                   Cancelar
@@ -181,7 +255,7 @@ export default function CreateVacancy() {
                       Creando...
                     </>
                   ) : (
-                    'Crear Vacante'
+                    "Crear Vacante"
                   )}
                 </Button>
               </div>

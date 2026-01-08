@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { FileText, Inbox } from 'lucide-react';
-import { ApplicationCard } from '@/components/ApplicationCard';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { applicationsApi } from '@/lib/api';
-import { toast } from 'sonner';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import { FileText, Inbox } from "lucide-react";
+import { ApplicationCard } from "@/components/ApplicationCard";
+import { MainLayout } from "@/components/layout/MainLayout";
+import { applicationsApi } from "@/lib/api";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 
 interface Application {
   id: string;
@@ -14,7 +14,7 @@ interface Application {
     title: string;
     company: string;
   };
-  status: 'pendiente' | 'aceptada' | 'rechazada';
+  status: "pendiente" | "aceptada" | "rechazada";
   createdAt: string;
 }
 
@@ -29,16 +29,16 @@ export default function MyApplications() {
   const fetchApplications = async () => {
     try {
       const response = await applicationsApi.getMyApplications();
-      setApplications((response.data as Application[]) || []);
+      setApplications((response as Application[]) || []);
     } catch (error: any) {
-      toast.error('Error al cargar postulaciones');
+      toast.error("Error al cargar postulaciones");
     } finally {
       setIsLoading(false);
     }
   };
 
   const activeCount = applications.filter(
-    (app) => app.status === 'pendiente' || app.status === 'aceptada'
+    (app) => app.status === "pendiente" || app.status === "aceptada"
   ).length;
 
   return (
@@ -51,7 +51,12 @@ export default function MyApplications() {
             Mis Postulaciones
           </h1>
           <p className="text-muted-foreground mt-1">
-            Aplicaciones activas: <span className={activeCount >= 3 ? 'text-warning' : 'text-primary'}>{activeCount}/3</span>
+            Aplicaciones activas:{" "}
+            <span
+              className={activeCount >= 3 ? "text-warning" : "text-primary"}
+            >
+              {activeCount}/3
+            </span>
           </p>
         </div>
 
@@ -87,8 +92,8 @@ export default function MyApplications() {
               <ApplicationCard
                 key={application.id}
                 id={application.id}
-                vacancyTitle={application.vacancy?.title || 'Vacante'}
-                company={application.vacancy?.company || 'Empresa'}
+                vacancyTitle={application.vacancy?.title || "Vacante"}
+                company={application.vacancy?.company || "Empresa"}
                 status={application.status}
                 appliedAt={application.createdAt}
               />

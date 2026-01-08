@@ -1,8 +1,13 @@
-import { MapPin, DollarSign, Users, Building2, Clock } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { MapPin, DollarSign, Users, Building2, Clock } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface VacancyCardProps {
   id: string;
@@ -10,9 +15,10 @@ interface VacancyCardProps {
   description: string;
   company: string;
   location: string;
-  salary: number;
-  maxApplicants: number;
-  currentApplicants: number;
+  salary?: number;
+  salaryRange?: string;
+  maxApplicants?: number;
+  currentApplicants?: number;
   isActive: boolean;
   onApply?: () => void;
   onManage?: () => void;
@@ -28,6 +34,7 @@ export function VacancyCard({
   company,
   location,
   salary,
+  salaryRange,
   maxApplicants,
   currentApplicants,
   isActive,
@@ -38,8 +45,16 @@ export function VacancyCard({
   canApply = true,
   showAdminActions = false,
 }: VacancyCardProps) {
-  const isFull = currentApplicants >= maxApplicants;
-  const spotsLeft = maxApplicants - currentApplicants;
+  const safeCurrent = Number(currentApplicants ?? 0);
+  const safeMax = Number(maxApplicants ?? 0);
+  const isFull = safeMax > 0 ? safeCurrent >= safeMax : false;
+  const spotsLeft = safeMax - safeCurrent;
+
+  const formattedSalary = salaryRange
+    ? salaryRange
+    : typeof salary === "number" && !isNaN(salary)
+    ? `$${salary.toLocaleString()}`
+    : "—";
 
   const getStatusBadge = () => {
     if (!isActive) {
@@ -80,22 +95,17 @@ export function VacancyCard({
           </div>
           <div className="flex items-center gap-2 text-sm">
             <DollarSign size={14} className="text-primary" />
-            <span className="text-muted-foreground">
-              ${salary.toLocaleString()}
-            </span>
+            <span className="text-muted-foreground">{formattedSalary}</span>
           </div>
           <div className="flex items-center gap-2 text-sm col-span-2">
             <Users size={14} className="text-primary" />
             <span
-              className={cn(
-                'text-muted-foreground',
-                isFull && 'text-warning'
-              )}
+              className={cn("text-muted-foreground", isFull && "text-warning")}
             >
-              {currentApplicants}/{maxApplicants} postulantes
-              {!isFull && (
+              {safeCurrent}/{safeMax} postulantes
+              {!isFull && safeMax > 0 && (
                 <span className="text-muted-foreground/60">
-                  {' '}
+                  {" "}
                   ({spotsLeft} lugares)
                 </span>
               )}
@@ -106,42 +116,34 @@ export function VacancyCard({
 
       <CardFooter className="border-t border-border pt-4 gap-2">
         {showAdminActions ? (
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={onManage}
-          >
+          <Button variant="outline" className="w-full" onClick={onManage}>
             Gestionar
           </Button>
         ) : (
           <>
             {hasApplied ? (
-              <Button
-                variant="secondary"
-                className="w-full"
-                disabled
-              >
+              <Button variant="secondary" className="w-full" disabled>
                 <Clock size={16} className="mr-2" />
                 Ya postulado
               </Button>
             ) : (
               <Button
-                variant={isFull || !canApply || !isActive ? 'secondary' : 'default'}
+                variant={
+                  isFull || !canApply || !isActive ? "secondary" : "default"
+                }
                 className="w-full"
                 onClick={onApply}
                 disabled={isFull || !canApply || !isActive || isApplying}
               >
-                {isApplying ? (
-                  'Postulando...'
-                ) : isFull ? (
-                  'Vacante Llena'
-                ) : !canApply ? (
-                  'Límite alcanzado'
-                ) : !isActive ? (
-                  'No disponible'
-                ) : (
-                  'Postularse'
-                )}
+                {isApplying
+                  ? "Postulando..."
+                  : isFull
+                  ? "Vacante Llena"
+                  : !canApply
+                  ? "Límite alcanzado"
+                  : !isActive
+                  ? "No disponible"
+                  : "Postularse"}
               </Button>
             )}
           </>

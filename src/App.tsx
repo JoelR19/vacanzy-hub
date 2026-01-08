@@ -12,6 +12,7 @@ import Vacancies from "./pages/Vacancies";
 import MyApplications from "./pages/MyApplications";
 import CreateVacancy from "./pages/CreateVacancy";
 import Admin from "./pages/Admin";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,7 +39,7 @@ const App = () => (
             <Route
               path="/my-applications"
               element={
-                <ProtectedRoute allowedRoles={['CODER']}>
+                <ProtectedRoute allowedRoles={["CODER"]}>
                   <MyApplications />
                 </ProtectedRoute>
               }
@@ -46,15 +47,23 @@ const App = () => (
             <Route
               path="/vacancies/new"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN', 'GESTOR']}>
+                <ProtectedRoute allowedRoles={["ADMIN", "GESTOR"]}>
                   <CreateVacancy />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/admin"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN', 'GESTOR']}>
+                <ProtectedRoute allowedRoles={["ADMIN", "GESTOR"]}>
                   <Admin />
                 </ProtectedRoute>
               }

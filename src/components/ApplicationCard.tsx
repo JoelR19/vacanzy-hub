@@ -1,14 +1,16 @@
-import { Calendar, Building2, FileText } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Calendar, Building2, FileText } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ApplicationCardProps {
   id: string;
   vacancyTitle: string;
   company: string;
-  status: 'pendiente' | 'aceptada' | 'rechazada';
+  applicantName?: string;
+  applicantEmail?: string;
+  status: "pendiente" | "aceptada" | "rechazada";
   appliedAt: string;
   onAccept?: () => void;
   onReject?: () => void;
@@ -19,6 +21,8 @@ interface ApplicationCardProps {
 export function ApplicationCard({
   vacancyTitle,
   company,
+  applicantName,
+  applicantEmail,
   status,
   appliedAt,
   onAccept,
@@ -28,9 +32,9 @@ export function ApplicationCard({
 }: ApplicationCardProps) {
   const getStatusBadge = () => {
     switch (status) {
-      case 'aceptada':
+      case "aceptada":
         return <Badge className="badge-success">Aceptada</Badge>;
-      case 'rechazada':
+      case "rechazada":
         return <Badge className="badge-destructive">Rechazada</Badge>;
       default:
         return <Badge className="badge-warning">Pendiente</Badge>;
@@ -58,16 +62,31 @@ export function ApplicationCard({
       </CardHeader>
 
       <CardContent>
+        {(applicantName || applicantEmail) && (
+          <div className="mb-3">
+            <div className="text-sm text-foreground font-medium">
+              {applicantName || applicantEmail}
+            </div>
+            {applicantEmail && (
+              <div className="text-xs text-muted-foreground">
+                {applicantEmail}
+              </div>
+            )}
+          </div>
+        )}
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <Calendar size={14} />
-          <span>Aplicado el {new Date(appliedAt).toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-          })}</span>
+          <span>
+            Aplicado el{" "}
+            {new Date(appliedAt).toLocaleDateString("es-ES", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
         </div>
 
-        {showActions && status === 'pendiente' && (
+        {showActions && status === "pendiente" && (
           <div className="flex gap-2 pt-3 border-t border-border">
             <Button
               variant="success"

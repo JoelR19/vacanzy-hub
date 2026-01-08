@@ -1,12 +1,19 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authApi } from '@/lib/api';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { authApi } from "@/lib/api";
 
-export type UserRole = 'ADMIN' | 'GESTOR' | 'CODER';
+export type UserRole = "ADMIN" | "GESTOR" | "CODER";
 
 interface User {
   id: string;
   email: string;
   name: string;
+  createdAt?: string;
   role: UserRole;
 }
 
@@ -14,10 +21,10 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User | null>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  refreshUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,9 +36,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = async () => {
     try {
       const response = await authApi.getProfile();
-      setUser(response.data as User);
+      // Normalizar distintos shapes de respuesta del backend
+      const normalized =
+        response &&
+        (response.data ?? response) &&
+        (response.data?.data ?? response.data ?? response);
+      const result = (normalized as User) || null;
+      setUser(result);
+      return result;
     } catch {
       setUser(null);
+      return null;
     }
   };
 
@@ -39,7 +54,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuth = async () => {
       try {
         const response = await authApi.getProfile();
-        setUser(response.data as User);
+        const normalized =
+          response &&
+          (response.data ?? response) &&
+          (response.data?.data ?? response.data ?? response);
+        setUser((normalized as User) || null);
       } catch {
         setUser(null);
       } finally {
@@ -51,9 +70,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await authApi.login(email, password);
-    const data = response.data as any;
-    setUser(data.user || data);
+    await authApi.login(email, password);
+    // Después del login el servidor establece la cookie; refrescamos el perfil
+    const user = await refreshUser();
+    return user;
   };
 
   const register = async (email: string, password: string, name: string) => {
@@ -89,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react';
-import { LayoutDashboard, Briefcase, FileText, Users, TrendingUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { VacancyCard } from '@/components/VacancyCard';
-import { ApplicationCard } from '@/components/ApplicationCard';
-import { VacancyCardSkeleton } from '@/components/VacancyCardSkeleton';
-import { vacanciesApi, applicationsApi } from '@/lib/api';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import {
+  LayoutDashboard,
+  Briefcase,
+  FileText,
+  Users,
+  TrendingUp,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MainLayout } from "@/components/layout/MainLayout";
+import { VacancyCard } from "@/components/VacancyCard";
+import { ApplicationCard } from "@/components/ApplicationCard";
+import { VacancyCardSkeleton } from "@/components/VacancyCardSkeleton";
+import { vacanciesApi, applicationsApi } from "@/lib/api";
+import { toast } from "sonner";
 
 interface Vacancy {
   id: string;
@@ -33,7 +39,7 @@ interface Application {
     name: string;
     email: string;
   };
-  status: 'pendiente' | 'aceptada' | 'rechazada';
+  status: "pendiente" | "aceptada" | "rechazada";
   createdAt: string;
 }
 
@@ -49,11 +55,29 @@ export default function Admin() {
 
   const fetchVacancies = async () => {
     try {
-      const response = await vacanciesApi.getAll();
-      const data = response.data as any;
-      setVacancies(data?.items || data || []);
+      // Admin quiere ver todas las vacantes, incluidas las inactivas
+      const response = await vacanciesApi.getAll({ includeInactive: true });
+      const raw = Array.isArray(response)
+        ? response
+        : (response as any)?.data || [];
+      const list = (raw as any[]).map((v) => ({
+        id: v.id,
+        title: v.title,
+        description: v.description,
+        company: v.company,
+        location: v.location,
+        salary: typeof v.salary === "number" ? v.salary : undefined,
+        salaryRange: v.salaryRange ?? (v.salary ? String(v.salary) : undefined),
+        maxApplicants: v.maxApplicants ?? 0,
+        currentApplicants: Array.isArray(v.applications)
+          ? v.applications.length
+          : 0,
+        isActive: v.isActive,
+        applications: v.applications,
+      }));
+      setVacancies(list);
     } catch (error: any) {
-      toast.error('Error al cargar datos');
+      toast.error("Error al cargar datos");
     } finally {
       setIsLoading(false);
     }
@@ -62,21 +86,24 @@ export default function Admin() {
   const handleDeactivateVacancy = async (id: string) => {
     try {
       await vacanciesApi.updateStatus(id);
-      toast.success('Vacante desactivada');
+      toast.success("Vacante desactivada");
       fetchVacancies();
     } catch (error: any) {
-      toast.error(error.message || 'Error al desactivar vacante');
+      toast.error(error.message || "Error al desactivar vacante");
     }
   };
 
-  const handleUpdateApplicationStatus = async (id: string, status: 'aceptada' | 'rechazada') => {
+  const handleUpdateApplicationStatus = async (
+    id: string,
+    status: "aceptada" | "rechazada"
+  ) => {
     setUpdatingId(id);
     try {
       await applicationsApi.updateStatus(id, status);
       toast.success(`Postulación ${status}`);
       fetchVacancies();
     } catch (error: any) {
-      toast.error(error.message || 'Error al actualizar estado');
+      toast.error(error.message || "Error al actualizar estado");
     } finally {
       setUpdatingId(null);
     }
@@ -85,9 +112,14 @@ export default function Admin() {
   const stats = {
     totalVacancies: vacancies.length,
     activeVacancies: vacancies.filter((v) => v.isActive).length,
-    totalApplications: vacancies.reduce((acc, v) => acc + (v.currentApplicants || 0), 0),
+    totalApplications: vacancies.reduce(
+      (acc, v) => acc + (v.currentApplicants || 0),
+      0
+    ),
     pendingApplications: vacancies.reduce(
-      (acc, v) => acc + (v.applications?.filter((a) => a.status === 'pendiente').length || 0),
+      (acc, v) =>
+        acc +
+        (v.applications?.filter((a) => a.status === "pendiente").length || 0),
       0
     ),
   };
@@ -214,15 +246,23 @@ export default function Admin() {
                       id={application.id}
                       vacancyTitle={vacancy.title}
                       company={vacancy.company}
+                      applicantName={application.user?.name}
+                      applicantEmail={application.user?.email}
                       status={application.status}
                       appliedAt={application.createdAt}
                       showActions
                       isUpdating={updatingId === application.id}
                       onAccept={() =>
-                        handleUpdateApplicationStatus(application.id, 'aceptada')
+                        handleUpdateApplicationStatus(
+                          application.id,
+                          "aceptada"
+                        )
                       }
                       onReject={() =>
-                        handleUpdateApplicationStatus(application.id, 'rechazada')
+                        handleUpdateApplicationStatus(
+                          application.id,
+                          "rechazada"
+                        )
                       }
                     />
                   ))

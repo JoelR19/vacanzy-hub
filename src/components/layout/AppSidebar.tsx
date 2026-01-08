@@ -1,18 +1,18 @@
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { 
-  Briefcase, 
-  FileText, 
-  PlusCircle, 
-  LayoutDashboard, 
-  LogOut, 
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import {
+  Briefcase,
+  FileText,
+  PlusCircle,
+  LayoutDashboard,
+  LogOut,
   User,
   ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth, UserRole } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+  ChevronRight,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth, UserRole } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface NavItem {
   title: string;
@@ -23,28 +23,28 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    title: 'Vacantes',
-    href: '/vacancies',
+    title: "Vacantes",
+    href: "/vacancies",
     icon: Briefcase,
-    roles: ['ADMIN', 'GESTOR', 'CODER'],
+    roles: ["ADMIN", "GESTOR", "CODER"],
   },
   {
-    title: 'Mis Postulaciones',
-    href: '/my-applications',
+    title: "Mis Postulaciones",
+    href: "/my-applications",
     icon: FileText,
-    roles: ['CODER'],
+    roles: ["CODER"],
   },
   {
-    title: 'Crear Vacante',
-    href: '/vacancies/new',
+    title: "Crear Vacante",
+    href: "/vacancies/new",
     icon: PlusCircle,
-    roles: ['ADMIN', 'GESTOR'],
+    roles: ["ADMIN", "GESTOR"],
   },
   {
-    title: 'Administración',
-    href: '/admin',
+    title: "Administración",
+    href: "/admin",
     icon: LayoutDashboard,
-    roles: ['ADMIN', 'GESTOR'],
+    roles: ["ADMIN", "GESTOR"],
   },
 ];
 
@@ -60,27 +60,27 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const getRoleBadgeClass = (role: UserRole) => {
     switch (role) {
-      case 'ADMIN':
-        return 'badge-destructive';
-      case 'GESTOR':
-        return 'badge-warning';
-      case 'CODER':
-        return 'badge-primary';
+      case "ADMIN":
+        return "badge-destructive";
+      case "GESTOR":
+        return "badge-warning";
+      case "CODER":
+        return "badge-primary";
       default:
-        return 'badge-primary';
+        return "badge-primary";
     }
   };
 
   return (
     <aside
       className={cn(
-        'flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
-        collapsed ? 'w-16' : 'w-64'
+        "flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300",
+        collapsed ? "w-16" : "w-64"
       )}
     >
       {/* Header */}
@@ -109,13 +109,13 @@ export function AppSidebar() {
               key={item.href}
               to={item.href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200',
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                 isActive
-                  ? 'bg-sidebar-accent text-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-foreground'
+                  ? "bg-sidebar-accent text-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-foreground"
               )}
             >
-              <item.icon size={20} className={isActive ? 'text-primary' : ''} />
+              <item.icon size={20} className={isActive ? "text-primary" : ""} />
               {!collapsed && <span className="font-medium">{item.title}</span>}
             </Link>
           );
@@ -124,32 +124,39 @@ export function AppSidebar() {
 
       {/* User Profile */}
       <div className="border-t border-sidebar-border p-4">
-        <div className={cn('flex items-center gap-3', collapsed && 'justify-center')}>
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary">
-            <User size={20} />
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {user?.name}
-              </p>
-              <span
-                className={cn(
-                  'inline-block px-2 py-0.5 text-xs rounded-full mt-1',
-                  user && getRoleBadgeClass(user.role)
-                )}
-              >
-                {user?.role}
-              </span>
-            </div>
+        <div
+          className={cn(
+            "flex items-center gap-3",
+            collapsed && "justify-center"
           )}
+        >
+          <Link to="/profile" className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary">
+              <User size={20} />
+            </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {user?.name}
+                </p>
+                <span
+                  className={cn(
+                    "inline-block px-2 py-0.5 text-xs rounded-full mt-1",
+                    user && getRoleBadgeClass(user.role)
+                  )}
+                >
+                  {user?.role}
+                </span>
+              </div>
+            )}
+          </Link>
         </div>
         <Button
           variant="ghost"
           onClick={handleLogout}
           className={cn(
-            'w-full mt-3 text-sidebar-foreground hover:text-destructive',
-            collapsed && 'px-0'
+            "w-full mt-3 text-sidebar-foreground hover:text-destructive",
+            collapsed && "px-0"
           )}
         >
           <LogOut size={18} />
